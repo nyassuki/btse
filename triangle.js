@@ -293,7 +293,7 @@ async function Arbitrage(baseC,quoteC,amountin) {
                       `✅ Amount trade: ${amountin} buy get ${EXC_1_OUT.toFixed(4)} sell and get ${EXC_2_OUT.toFixed(4)} back ${EXC_MARGIN_PR.toFixed(2)}%\n`;
    console.log(logMessage);
     
-    if(EXC_MARGIN_PR > 0 ) {
+    if(EXC_MARGIN_PR > 5 &&  EXC_MARGIN_PR < 60) {
         const tele_message = `✅ Pairs ${baseC}-${quoteC}\n✅ Buy on ${buy_exchange} buy price ${buy_price}\n✅ Sell on ${sell_exchange} sell price ${sell_price}\n✅ Margin ${EXC_2_OUT.toFixed(2)} (${EXC_MARGIN_PR.toFixed(2)}%)`;
         await sendTelegramMessage(tele_message);
     }     
@@ -327,4 +327,3 @@ async function search() {
     }
 }
 search();
-
