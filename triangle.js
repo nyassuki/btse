@@ -243,15 +243,6 @@ function convertTokenName(token) {
     return tokenMap[token] || token; // Return mapped name or original if not found.
 }
 
-async function main() {
-   const args = process.argv.slice(2);
-   const baseC = args[0] || "BTC";
-   const amountin = args[1] || 50;
-   const quoteC = args[2] || "USDT";
-   
-  await Arbitrage(baseC,quoteC,amountin);
-                
-}
 
 async function Arbitrage(baseC,quoteC,amountin) {
    let joindata = [];
@@ -288,14 +279,19 @@ async function Arbitrage(baseC,quoteC,amountin) {
    EXC_2_OUT = EXC_2_OUT-(EXC_2_OUT*0.3/100); //sell trading fee;
    const EXC_MARGIN = EXC_2_OUT-amountin;
    const EXC_MARGIN_PR = EXC_MARGIN/amountin*100;
-
-   const logMessage = `✅ Buy price ${buy_price} on ${buy_exchange} sell price ${sell_price} on ${sell_exchange} margin ${margin.toFixed(4)}\n` +
-                      `✅ Amount trade: ${amountin} buy get ${EXC_1_OUT.toFixed(4)} sell and get ${EXC_2_OUT.toFixed(4)} back ${EXC_MARGIN_PR.toFixed(2)}%\n`;
-   console.log(logMessage);
+   let resultMessage = `\n✅ Arbitrage opportunity for ${baseC} ${quoteC} ! \n` +
+        `   💰 Trading Amount: ${amountin} ${quoteC}\n` +
+        `   🟢 Buy ${baseC} on ${buy_exchange} at ${buy_price.toFixed(4)}\n` +
+        `   🔴 Sell ${baseC} on ${sell_exchange} at ${sell_price.toFixed(4)}\n` +
+        `   💵 Estimated Profit: ${EXC_MARGIN.toFixed(4)} ${quoteC} (${EXC_MARGIN_PR.toFixed(2)} %)\n`;
+   
+       
+   console.log(resultMessage);
     
     if(EXC_MARGIN_PR > 5 &&  EXC_MARGIN_PR < 60) {
+
         const tele_message = `✅ Pairs ${baseC}-${quoteC}\n✅ Buy on ${buy_exchange} buy price ${buy_price}\n✅ Sell on ${sell_exchange} sell price ${sell_price}\n✅ Margin ${EXC_2_OUT.toFixed(2)} (${EXC_MARGIN_PR.toFixed(2)}%)`;
-        await sendTelegramMessage(tele_message);
+        await sendTelegramMessage(resultMessage);
     }     
 }
 
@@ -321,12 +317,14 @@ async function search(toSearch) {
         'SPX-USDT'
     ];
     
-    const pairs = "" ; //known_profitable;//await btse_fetchAvailableMarkets();
+    let pairs = "" ; //known_profitable;//await btse_fetchAvailableMarkets();
 
     if(toSearch=="K") {
         pairs = known_profitable;
     } else if(toSearch=="A") {
         pairs = await btse_fetchAvailableMarkets();
+    } else if(toSearch=="M") {
+
     }
 
     const firstCoins = [...new Set(pairs.map(pair => pair.split('-')[0]))];
@@ -343,4 +341,21 @@ async function search(toSearch) {
     }
 }
 
-search();
+ 
+
+async function main() {
+   const args = process.argv.slice(2);
+   const cmd = args[0] || "CHK";
+   if(cmd=="CHK") {
+       const baseC = args[1] || "BTC";
+       const amountin = args[2] || 50;
+       const quoteC = args[3] || "USDT";
+       await Arbitrage(baseC,quoteC,amountin);
+    } else if(cmd=="SRC") {
+        const baseC = args[1] || "BTC";
+        await search(baseC);
+    } else {
+        console.log(`⚠️ No option added!`);
+    }
+}
+main();
