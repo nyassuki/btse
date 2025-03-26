@@ -311,19 +311,36 @@ async function btse_fetchAvailableMarkets() {
     }
 }
 
-async function search() {
+async function search(toSearch) {
     const amountin = 50;
     const quoteC = "USDT";
-    const pairs = await btse_fetchAvailableMarkets();
+    const known_profitable = [
+        'BADGER-USDT',
+        'GALA-USDT',
+        'GTC-USDT',
+        'SPX-USDT'
+    ];
+    
+    const pairs = "" ; //known_profitable;//await btse_fetchAvailableMarkets();
+
+    if(toSearch=="K") {
+        pairs = known_profitable;
+    } else if(toSearch=="A") {
+        pairs = await btse_fetchAvailableMarkets();
+    }
+
     const firstCoins = [...new Set(pairs.map(pair => pair.split('-')[0]))];
     const firstCoinsWithUSDT = [...new Set(
       pairs
         .filter(pair => pair.endsWith('-USDT')) // Keep only pairs ending in USDT
         .map(pair => pair.split('-')[0])        // Extract first coin name
     )];
+    let nom = firstCoinsWithUSDT.length;
     for (const base of firstCoinsWithUSDT) {
-        console.log(`⚠️ Checking ${base} oportunity ...`);
+        nom--;
+        console.log(`✅ Checking ${base}-${quoteC} opportunity ...remaining check ${nom}`);
         await Arbitrage(base, quoteC, amountin);
     }
 }
+
 search();
